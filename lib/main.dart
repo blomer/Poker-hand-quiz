@@ -1,125 +1,153 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:poker_hand_test/player_hand.dart';
+
+import 'hand_detector.dart';
+
+List<String> board = [];
+List<PlayerHand> playerHands = [];
+String result = "Please choose which hand wins.";
 
 void main() {
-  runApp(const MyApp());
+  generateHand();
+  runApp(MaterialApp(home: Home()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void generateHand() {
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  board.clear();
+  playerHands.clear();
+
+  List<String> usedCards = [], one = [], two = [];
+  for(int i = 0; i < 5; i++) {
+
+    String card = generateCard(usedCards);
+    board.add(card);
+    usedCards.add(card);
+  }
+
+  for(int players = 0; players < 2; players++) {
+    List<String> hand = [];
+    for(int cards = 0; cards < 2; cards++) {
+      String card = generateCard(usedCards);
+
+      hand.add(card);
+      usedCards.add(card);
+    }
+
+    playerHands.add(PlayerHand(cards: hand));
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+String generateCard(List<String> usedCards) {
+  while(true) {
+    String card = PokerHandDetector.FACES.elementAt(Random().nextInt(13)) + PokerHandDetector.SUITS.elementAt(Random().nextInt(4));
+    if(!usedCards.contains(card)) {
+      return card;
+    }
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class Home extends StatefulWidget {
+  const Home({super.key});
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
+      backgroundColor: Colors.blue[900],
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        centerTitle: true,
+        title: Text(
+            "Poker Hand Quiz",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.blue,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(result, style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),),
+            SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: board.map((e) => Image.asset("assets/cards/$e.png", scale: 1.75)).toList(),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            SizedBox(height: 25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: playerHands.map((hand) =>
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                    onPressed: (){
+                      setState(() {
+                        List<String> fullHand = List.from(board);
+                        fullHand.addAll(hand.cards);
+
+                        PokerHand pokerHand = PokerHandDetector.detectHand(fullHand);
+
+                        bool isBestHand = true;
+                        for(PlayerHand h in playerHands) {
+                          if (h.cards != hand.cards) {
+                            var hand1 = PokerHandDetector.bestHandNoLimits(
+                                board, hand.cards);
+                            var hand2 = PokerHandDetector.bestHandNoLimits(
+                                board, h.cards);
+
+                            int i = hand1!.compareTo(hand2);
+                            if (i < 0) {
+                              isBestHand = false;
+                              break;
+                            }
+                          }
+                        }
+
+                        if(isBestHand) {
+                          result = "That was the best hand! ${pokerHand.type.name}";
+                        } else {
+                          result = "That was not the best hand. :(";
+                        }
+                      });
+
+                      Future.delayed(const Duration(seconds: 1), () {
+
+                        setState(() {
+                          generateHand();
+                        });
+
+                      });
+                    },
+                  icon: Row(
+                    children: [
+                      Image.asset("assets/cards/${hand.cards.elementAt(0)}.png", scale: 1.75),
+                      Image.asset("assets/cards/${hand.cards.elementAt(1)}.png", scale: 1.75)
+                    ],
+                    ),
+                    padding: EdgeInsets.all(0),
+                    splashRadius: 1
+                  ),
+                )).toList(),
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

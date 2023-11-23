@@ -8,6 +8,7 @@ import 'hand_detector.dart';
 List<String> board = [];
 List<PlayerHand> playerHands = [];
 String result = "Please choose which hand wins.";
+int roundsPlayed = 0, correctAnswers = 0;
 
 void main() {
   generateHand();
@@ -27,7 +28,7 @@ void generateHand() {
     usedCards.add(card);
   }
 
-  for(int players = 0; players < 2; players++) {
+  for(int players = 0; players < 3; players++) {
     List<String> hand = [];
     for(int cards = 0; cards < 2; cards++) {
       String card = generateCard(usedCards);
@@ -48,6 +49,45 @@ String generateCard(List<String> usedCards) {
     }
   }
 }
+
+class Results extends StatelessWidget {
+  const Results({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue[900],
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Poker Hand Quiz",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("Game Finished!", style: TextStyle(
+              fontSize: 24,
+              color: Colors.white,
+            ),),
+            Text("Correct answers: $correctAnswers/$roundsPlayed", style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -82,6 +122,7 @@ class _HomeState extends State<Home> {
               fontSize: 18,
               color: Colors.white,
             ),),
+            Text("Correct answers: $correctAnswers/$roundsPlayed"),
             SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -121,17 +162,27 @@ class _HomeState extends State<Home> {
 
                         if(isBestHand) {
                           result = "That was the best hand! ${pokerHand.type.name}";
+                          correctAnswers++;
                         } else {
                           result = "That was not the best hand. :(";
                         }
+
+                        roundsPlayed++;
                       });
 
                       Future.delayed(const Duration(seconds: 1), () {
-
                         setState(() {
-                          generateHand();
+                          if(roundsPlayed > 9) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Results()),
+                            );
+                            roundsPlayed = 0;
+                            correctAnswers = 0;
+                          } else {
+                            generateHand();
+                          }
                         });
-
                       });
                     },
                   icon: Row(

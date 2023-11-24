@@ -5,10 +5,11 @@ import 'package:poker_hand_test/flutter_flux/flutter_flux.dart';
 import 'package:poker_hand_test/game_store.dart';
 import 'package:poker_hand_test/player_hand.dart';
 
+import 'game_state.dart';
 import 'hand_detector.dart';
 
 void main() {
-  runApp(MaterialApp(home: Home()));
+  runApp(const MaterialApp(home: Home()));
 }
 
 class Results extends StatelessWidget {
@@ -76,34 +77,27 @@ class _HomeState extends State<Home> with StoreWatcherMixin<Home> {
     super.initState();
 
     gameStore = listenToStore(gameStoreToken) as GameStore;
-    gameStoreActions.generateHand();
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> handButtons = [];
 
-    for (var i = 0; i < gameStore.playerHands.length; ++i) {
-      PlayerHand hand = gameStore.playerHands[i];
+    for (var i = 0; i < gameStore.gameState.playerHands.length; ++i) {
+      PlayerHand hand = gameStore.gameState.playerHands[i];
       handButtons.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: IconButton(
             onPressed: () {
               gameStoreActions.captureUserSelection(i);
 
-              Future.delayed(const Duration(seconds: 1), () {
-                setState(() {
-                  if (gameStore.roundsPlayed > 9) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Results(roundsPlayed: gameStore.roundsPlayed, correctAnswers: gameStore.correctAnswers,)),
-                    );
-                  } else {
-                    gameStoreActions.generateHand();
-                  }
-                });
-              });
+              if (gameStore.gameState.roundsPlayed > 9) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Results(roundsPlayed: gameStore.gameState.roundsPlayed, correctAnswers: gameStore.gameState.correctAnswers,)),
+                );
+              }
             },
             icon: Row(
               children: [
@@ -115,7 +109,7 @@ class _HomeState extends State<Home> with StoreWatcherMixin<Home> {
                     scale: 1.75)
               ],
             ),
-            padding: EdgeInsets.all(0),
+            padding: const EdgeInsets.all(0),
             splashRadius: 1),
       ));
     }
@@ -139,19 +133,19 @@ class _HomeState extends State<Home> with StoreWatcherMixin<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              gameStore.result,
+              gameStore.gameState.result,
               style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white,
               ),
             ),
             Text(
-                "Correct answers: ${gameStore.correctAnswers}/${gameStore.roundsPlayed}"),
+                "Correct answers: ${gameStore.gameState.correctAnswers}/${gameStore.gameState.roundsPlayed}"),
             const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: gameStore.board
+              children: gameStore.gameState.board
                   .map((e) => Image.asset("assets/cards/$e.png", scale: 1.75))
                   .toList(),
             ),

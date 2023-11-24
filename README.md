@@ -1,16 +1,87 @@
-# poker_hand_test
+Typical CRUD app
+----------------
 
-A new Flutter project.
+stateful widget
+ - int counter
 
-## Getting Started
+on init () 
+   - async GET /counter 
+   - counter = result.counter
 
-This project is a starting point for a Flutter application.
+on button press 
+set state (API call to POST /counter
+  counter = result.counter
+)
+set state (API call to POST /counter
 
-A few resources to get you started if this is your first Flutter project:
+database
+--------
+counter : 12
+-------
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Event sourcing
+---------------
+
+stateful widget
+- int counter
+
+on init ()
+- async GET /counter
+- counter = result.counter
+
+on button press
+event(type=counter_increase)
+event(type=counter_decrease)
+
+set state (API call to POST /counter
+
+
+database
+--------
+table events
+event_id | data
+-------
+1, {counter_increase}
+2, {counter_increase}
+3, {counter_decrease}
+------
+counter = 1
+
+events
+state_machine
+
+e1, null -> state_machine -> s1
+e2, s1 -> state_machine ->  s2
+
+------------
+
+
+
+cof_app -> flutter app
+cof_engine -> common code
+
+()
+event:
+    - type = bet
+    - amount = 1
+    - player = p1
+Protobuf(machine format) 23q7869hn;laxs923414908
+S1.apply(e1) -> S2
+ 
+
+
+cof_server -> backend game server
+23q7869hn;laxs923414908 ->
+event:
+    - type = bet
+  - amount = 1
+  - player = p1
+
+S1.apply(e1) => S2
+
+
+
+
+
+

@@ -18,11 +18,7 @@ class GameStore extends Store{
 
   final GameStoreActions _gameStoreActions;
 
-  List<String> board = [];
-  List<PlayerHand> playerHands = [];
-  String result = "Please choose which hand wins.";
-  int roundsPlayed = 0;
-  int correctAnswers = 0;
+  GameState gameState = GameState.initial();
 
   GameStore(this._gameStoreActions) {
     _gameStoreActions.generateHand.listen(_generateHand);
@@ -30,28 +26,7 @@ class GameStore extends Store{
   }
 
   void _generateHand(_) {
-    board.clear();
-    playerHands.clear();
-
-    List<String> usedCards = [];
-    for(int i = 0; i < 5; i++) {
-
-      String card = _generateCard(usedCards);
-      board.add(card);
-      usedCards.add(card);
-    }
-
-    for(int players = 0; players < 3; players++) {
-      List<String> hand = [];
-      for(int cards = 0; cards < 2; cards++) {
-        String card = _generateCard(usedCards);
-
-        hand.add(card);
-        usedCards.add(card);
-      }
-
-      playerHands.add(PlayerHand(cards: hand));
-    }
+    gameState = gameState.apply(Event());
 
     trigger();
   }
